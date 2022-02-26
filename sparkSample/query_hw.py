@@ -1,8 +1,9 @@
-from pyspark.sql.functions import to_timestamp, col, month, year, desc
+from pyspark.sql.functions import *
+import datetime
+from pyspark.ml.stat import Correlation
+import firecalls
 
-import init_db
-
-df=init_db.init_db()
+df = firecalls.init_db()
 
 # task 1
 # df.select('CallType')\
@@ -25,6 +26,37 @@ df=init_db.init_db()
 #     .show(truncate=False)
 
 # task 3
-sampleNeighbor=df.select('Neighborhood')\
-    .where("Neighborhood=='San Francisco'")\
-    .show(10,truncate=False)
+# sampleNeighbor=df.select('Neighborhood')\
+#     .where("City =='SAN FRANCISCO'")\
+#     .groupBy('Neighborhood')\
+#     .agg(count('Neighborhood').alias('count'))\
+#     .orderBy(col('count').desc())\
+#     .show(truncate=False)
+
+# task 4
+# df.select('Neighborhood','Delay')\
+#     .where("City =='SAN FRANCISCO'")\
+#     .groupBy('Neighborhood')\
+#     .agg(max('Delay').alias('MaxDelay'))\
+#     .orderBy(col('MaxDelay').desc())\
+#     .show(10)
+
+# task 5
+# sample5 = df.withColumn('IncidentWeek', weekofyear(to_timestamp(col('CallDate'), "MM/dd/yyyy"))) \
+#     .withColumn('IncidentDate', to_timestamp(col('CallDate'), "MM/dd/yyyy")) \
+#     .drop('CallDate')
+# sample5.select('IncidentWeek', 'IncidentDate')\
+#     .where(year('IncidentDate').__eq__(2018))\
+#     .groupBy('IncidentWeek')\
+#     .agg(count('IncidentWeek').alias('count'))\
+#     .orderBy(col('count').desc())\
+#     .show(truncate=False)
+
+# task 6
+# df['Neighborhood']=df['Neighborhood'].astype('category').cat.codes
+# df['Zipcode']=df['Zipcode'].astype('category').cat.codes
+# df.stat.corr('Neighborhood','Zipcode')
+
+df=df.select('Neighborhood', 'Zipcode', 'NumAlarms')
+r1=Correlation.corr(df,'Neighborhood','Zipcode')
+
